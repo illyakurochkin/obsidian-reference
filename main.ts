@@ -13,7 +13,7 @@ const stripFileExtension = (fileName: string): string => fileName.replace(/\.[^\
 
 const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 
-export default class AutoMOC extends Plugin {
+export default class ObsidianReference extends Plugin {
 	async onload() {
 		this.addCommand({
 			id: "add-missing-linked-mentions",
@@ -54,17 +54,20 @@ export default class AutoMOC extends Plugin {
 		if (!addedAnyLink) new Notice("No new links found");
 	}
 
-	async getActiveFileLocationsInOtherFile(currentFileName: string, filePath: string): Promise<{ start: number, text: string }[]> {
+	async getActiveFileLocationsInOtherFile(currentFileName: string, filePath: string): Promise<{
+		start: number,
+		text: string
+	}[]> {
 		const fileLines = await this.getFileLines(filePath);
 		return fileLines.map((line, index) => {
 			const match = new RegExp(`^# \\[\\[${escapeRegExp(stripFileExtension(currentFileName))}(\\|.+)?\\]\\]$`).exec(line)
-			return match ? {start: index, text: match[0] } : null;
+			return match ? {start: index, text: match[0]} : null;
 		}).filter(Boolean) || [];
 	}
 
 	async getFileLines(filePath: string): Promise<string[]> {
 		const file = this.app.vault.getAbstractFileByPath(filePath) as TFile;
-		const fileContent =  file ? await this.app.vault.read(file) : null;
+		const fileContent = file ? await this.app.vault.read(file) : null;
 		return fileContent?.split("\n") || [];
 	}
 
